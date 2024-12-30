@@ -3,6 +3,7 @@ mod config;
 mod dtos;
 mod error;
 mod db;
+mod utils;
 
 use axum::{http::{header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},HeaderValue, Method}, Extension, Router};
 use config::Config;

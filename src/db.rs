@@ -89,6 +89,7 @@ impl UserExt for DBClient {
             user = sqlx::query_as!(
                 User,
                 r#"SELECT id, name, email, password, verified, created_at, updated_at, verification_token, token_expires_at, role as "role: UserRole" FROM users WHERE id = $1"#,
+                user_id
             ).fetch_optional(&self.pool).await?;
         } else if let Some(name) = name {
             user = sqlx::query_as!(
@@ -111,19 +112,18 @@ impl UserExt for DBClient {
                 WHERE verification_token = $1"#,
                 token
             )
-            .fetch_optional(&self,pool)
+            .fetch_optional(&self.pool)
             .await?;
         }
 
         Ok(user)
-
     }
 
     async fn get_users(
         &self,
         page: u32,
         limit: usize,
-    ) -> Result<Vec<user>, sqlx::Error> {
+    ) -> Result<Vec<User>, sqlx::Error> {
         let offset = (page - 1) * limit as u32;
 
         let users = sqlx::query_as!(
@@ -151,7 +151,7 @@ impl UserExt for DBClient {
             r#"
             INSERT INTO users (name, email, password, verification_token, token_expires_at)
             VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, name, email, password, verified, created_at, updated_at, verication_token, token_expires_at, role as "role: UserRole"
+            RETURNING id, name, email, password, verified, created_at, updated_at, verification_token, token_expires_at, role as "role: UserRole"
             "#,
             name.into(),
             email.into(),
@@ -224,7 +224,7 @@ impl UserExt for DBClient {
             User,
             r#"
             UPDATE users
-            SET password = $1, updated_at Now()
+            SET password = $1, updated_at = Now()
             WHERE id = $2
             RETURNING id, name, email, password, verified, created_at, updated_at, verification_token, token_expires_at, role as "role: UserRole"
             "#,
