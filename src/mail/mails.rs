@@ -11,7 +11,7 @@ pub async fn send_verification_email(
     let verification_link = create_verification_link(base_url, token);
     let placeholders = vec![
         ("{{username}}".to_string(), username.to_string()),
-        ("{{verification_link}}".to_string(), verificaiton_link)
+        ("{{verification_link}}".to_string(), verification_link)
     ];
 
     send_email(to_email, subject, template_path, &placeholders).await
@@ -21,7 +21,7 @@ fn create_verification_link(base_url: &str, token: &str) -> String {
     format!("{}?token={}", base_url, token)
 }
 
-pub async fn send_welcome_emal(
+pub async fn send_welcome_email(
     to_email: &str,
     username: &str
 ) -> Result<(), Box<dyn std::error::Error>> {

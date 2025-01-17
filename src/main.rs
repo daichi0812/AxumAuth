@@ -4,11 +4,18 @@ mod dtos;
 mod error;
 mod db;
 mod utils;
+mod middleware;
+mod mail;
+mod handler;
+mod routes;
+
+use std::sync::Arc;
 
 use axum::{http::{header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},HeaderValue, Method}, Extension, Router};
 use config::Config;
 use db::DBClient;
 use dotenv::dotenv;
+use routes::create_router;
 use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::filter::LevelFilter;
@@ -56,9 +63,7 @@ async fn main() {
         db_client,
     };
 
-    let app = Router::new()
-        .layer(Extension(app_state))
-        .layer(cors.clone());
+    let app = create_router(Arc::new(app_state.clone())).layer(cors.clone());
 
     println!(
         "{}",

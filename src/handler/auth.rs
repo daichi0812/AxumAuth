@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use axum::{extract::Query, http::{header, HeaderMap, StatusCode}, response::{INtoResponse, Redirect}, routing::{get, post}, Extension, Json, Router};
+use axum::{extract::Query, http::{header, HeaderMap, StatusCode}, response::{IntoResponse, Redirect}, routing::{get, post}, Extension, Json, Router};
 use axum_extra::extract::cookie::Cookie;
 use chrono::{Utc, Duration};
 use validator::Validate;
 
-use crate::{db::UserExt, dtos::{ForgotPasswowrdRequstDto, LoginUserDto, RegisterUserDto, ResetPasswordRequestDto, Response, UserLoginResponseDto, VerifyEmailQueryDto}, error::{ErrorMessage, HttpError}, mail::mails::{send_forgot_password_email, send_verification_email, send_welcome_email}, utils::{password, token}, AppState};
+use crate::{db::UserExt, dtos::{ForgotPasswordRequestDto, LoginUserDto, RegisterUserDto, ResetPasswordRequestDto, Response, UserLoginResponseDto, VerifyEmailQueryDto}, error::{ErrorMessage, HttpError}, mail::mails::{send_forgot_password_email, send_verification_email, send_welcome_email}, utils::{password, token}, AppState};
 
 pub fn auth_handler() -> Router {
     Router::new()
@@ -19,7 +19,7 @@ pub fn auth_handler() -> Router {
 pub async fn register(
     Extension(app_state): Extension<Arc<AppState>>,
     Json(body): Json<RegisterUserDto>
-) -> Result<impl IntoResponse, HttpErro> {
+) -> Result<impl IntoResponse, HttpError> {
     body.validate()
         .map_err(|e| HttpError::bad_request(e.to_string()))?;
 
@@ -35,7 +35,7 @@ pub async fn register(
 
     match result {
         Ok(_user) => {
-            let send_email_result = send_verification_email(&body.email, &body,name, &verification_token).await;
+            let send_email_result = send_verification_email(&body.email, &body.name, &verification_token).await;
 
             if let Err(e) = send_email_result {
                 eprintln!("Failed to send verification email: {}", e);
@@ -99,14 +99,14 @@ pub async fn login(
         let mut headers = HeaderMap::new();
 
         headers.append(
-            heeader::SET_COOKIE,
+            header::SET_COOKIE,
             cookie.to_string().parse().unwrap(),
         );
 
         let mut response = response.into_response();
         response.headers_mut().extend(headers);
 
-        0k(response)
+        Ok(response)
     } else {
         Err(HttpError::bad_request(ErrorMessage::WrongCredentials.to_string()))
     }

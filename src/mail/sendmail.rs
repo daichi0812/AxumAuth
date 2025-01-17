@@ -14,7 +14,7 @@ pub async fn send_email(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let smtp_username = env::var("SMTP_USERNAME")?;
     let smtp_password = env::var("SMTP_PASSWORD")?;
-    let smtp_server = env::var("SMTP_SERVER");
+    let smtp_server = env::var("SMTP_SERVER")?;
     let smtp_port: u16 = env::var("SMTP_PORT")?.parse()?;
 
     let mut html_template = fs::read_to_string(template_path)?;
@@ -35,7 +35,7 @@ pub async fn send_email(
 
         let creds = Credentials::new(smtp_username.clone(), smtp_password.clone());
         let mailer = SmtpTransport::starttls_relay(&smtp_server)?
-            .creadentials(creds)
+            .credentials(creds)
             .port(smtp_port)
             .build();
 
