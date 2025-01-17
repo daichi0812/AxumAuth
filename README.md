@@ -14,3 +14,9 @@ $ sqlx migrate add -r users
 ```bash
 $ sqlx migrate run
 ```
+
+## あとやること
+- デプロイ
+- 送信用メールアドレスの変更
+- DELETEメソッドの追加
+- フロントエンドとの連結
