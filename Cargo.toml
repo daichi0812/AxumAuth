@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+shuttle-axum = "0.51.0"
+shuttle-runtime = "0.51.0"
 argon2 = "0.5.1"
 async-trait = "0.1.72"
 chrono = { version = "0.4.26", features = ["serde"] }
